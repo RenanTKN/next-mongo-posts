@@ -1,17 +1,35 @@
 import type { NextPage } from "next";
-import Head from "next/head";
+import { Grid } from "@mui/material";
 
-const Home: NextPage = () => {
+import Posts from "../components/Posts";
+import UserTable from "../components/UserTable";
+import { getUsers } from "../lib/db/users";
+import { getPosts } from "../lib/db/posts";
+import { Post, User } from "../models/types";
+import db from "../lib/db";
+
+const Home: NextPage = ({ users, posts }: any) => {
+  const userList: User[] = JSON.parse(users);
+  const postList: Post[] = JSON.parse(posts);
+
   return (
-    <div>
-      <Head>
-        <title>Fórum MongoDB</title>
-        <meta name="description" content="Fórum utilizando NextJS e MongoDB" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <h1>Home</h1>
-    </div>
+    <Grid container spacing={1}>
+      <Grid item sm={12} md={6}>
+        <UserTable list={userList} />
+      </Grid>
+      <Grid item sm={12} md={6}>
+        <Posts list={postList} />
+      </Grid>
+    </Grid>
   );
 };
+
+export async function getServerSideProps() {
+  await db();
+  const users = JSON.stringify(await getUsers());
+  const posts = JSON.stringify(await getPosts());
+
+  return { props: { users, posts } };
+}
 
 export default Home;
